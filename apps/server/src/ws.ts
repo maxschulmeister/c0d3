@@ -118,6 +118,7 @@ import * as CommandOutputHub from "./orchestration-v2/CommandOutputHub.ts";
 import * as McpAppRequests from "./mcpApps/McpAppRequests.ts";
 import * as ProviderSessionManager from "./orchestration-v2/ProviderSessionManager.ts";
 import * as ThreadLaunchService from "./orchestration-v2/ThreadLaunchService.ts";
+import * as LocalUpstreamUpdate from "./desktopUpdate/LocalUpstreamUpdate.ts";
 import * as ThreadMessageIntake from "./orchestration-v2/ThreadMessageIntake.ts";
 import * as DocumentText from "./provider/DocumentText.ts";
 import * as IdAllocator from "@t3tools/provider-core/server/IdAllocator";
@@ -1309,6 +1310,7 @@ export const layerWsRpc = (
         ).pipe(Effect.ignore);
       };
       const threadLaunch = yield* ThreadLaunchService.ThreadLaunchService;
+      const localUpstreamUpdate = yield* LocalUpstreamUpdate.LocalUpstreamUpdate;
       const commandOutputHub = yield* CommandOutputHub.CommandOutputHub;
       const providerSessionManager = yield* ProviderSessionManager.ProviderSessionManagerV2;
       const scheduledTasks = yield* ScheduledTasks.ScheduledTaskService;
@@ -2530,6 +2532,9 @@ export const layerWsRpc = (
         [WS_METHODS.serverGetNpmRelease]: (input) => npmRelease.get(input),
         [WS_METHODS.serverUpdateServerWithProgress]: (input) =>
           ServerSelfUpdate.updateProgressStream(serverSelfUpdate, input),
+        [WS_METHODS.localUpstreamUpdateSubscribe]: () => localUpstreamUpdate.changes,
+        [WS_METHODS.localUpstreamUpdateCheck]: () => localUpstreamUpdate.check,
+        [WS_METHODS.localUpstreamUpdateStart]: () => localUpstreamUpdate.start,
         [WS_METHODS.serverCommitDesktopUpdate]: (input) =>
           serverSelfUpdate.commitDesktopUpdate(input.requestId),
         [WS_METHODS.serverUpsertKeybinding]:
@@ -3333,6 +3338,7 @@ export const layer = Layer.unwrap(
   Effect.gen(function* () {
     const serverBrowser = yield* ServerBrowser.ServerBrowser;
     const serverSelfUpdate = yield* ServerSelfUpdate.ServerSelfUpdate;
+    const localUpstreamUpdate = yield* LocalUpstreamUpdate.LocalUpstreamUpdate;
     const npmRelease = yield* NpmRelease.NpmRelease;
     const pullRequests = yield* PullRequestService.PullRequestService;
     const reviewGuides = yield* PullRequestReviewGuideService.PullRequestReviewGuideService;
@@ -3410,6 +3416,9 @@ export const layer = Layer.unwrap(
               Layer.provide(ProviderMaintenanceRunner.layer),
               Layer.provide(Layer.succeed(NpmRelease.NpmRelease, npmRelease)),
               Layer.provide(Layer.succeed(ServerSelfUpdate.ServerSelfUpdate, serverSelfUpdate)),
+              Layer.provide(
+                Layer.succeed(LocalUpstreamUpdate.LocalUpstreamUpdate, localUpstreamUpdate),
+              ),
               // Share server-lifetime PR caches so WS mutations invalidate every client's HTTP diffs.
               Layer.provide(Layer.succeed(PullRequestService.PullRequestService, pullRequests)),
               Layer.provide(OtlpEndpointCheck.layer),

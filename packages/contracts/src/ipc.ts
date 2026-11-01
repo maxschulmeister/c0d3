@@ -1117,6 +1117,7 @@ export interface DesktopBridge {
   downloadUpdate: () => Promise<DesktopUpdateActionResult>;
   /** With a version, installs only that downloaded build. */
   installUpdate: (expectedVersion?: string) => Promise<DesktopUpdateActionResult>;
+  restartLocalUpstreamUpdate?: (operationId: string) => Promise<void>;
   onUpdateState: (listener: (state: DesktopUpdateState) => void) => () => void;
   cliCommand: {
     getState: () => Promise<DesktopCliCommandState>;

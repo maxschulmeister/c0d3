@@ -8,6 +8,7 @@ import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 
 import * as DesktopUpdates from "../../updates/DesktopUpdates.ts";
+import * as DesktopLocalUpstreamUpdate from "../../updates/DesktopLocalUpstreamUpdate.ts";
 import * as IpcChannels from "../channels.ts";
 import * as DesktopIpc from "../DesktopIpc.ts";
 
@@ -41,6 +42,16 @@ export const downloadUpdate = DesktopIpc.makeIpcMethod({
   handler: Effect.fn("desktop.ipc.updates.download")(function* () {
     const updates = yield* DesktopUpdates.DesktopUpdates;
     return yield* updates.download;
+  }),
+});
+
+export const restartLocalUpstreamUpdate = DesktopIpc.makeIpcMethod({
+  channel: IpcChannels.LOCAL_UPSTREAM_RESTART_CHANNEL,
+  payload: Schema.String,
+  result: Schema.Void,
+  handler: Effect.fn("desktop.ipc.updates.restartLocalUpstream")(function* (operationId) {
+    const service = yield* DesktopLocalUpstreamUpdate.DesktopLocalUpstreamUpdate;
+    return yield* service.restart(operationId);
   }),
 });
 

@@ -34,6 +34,7 @@ import {
   ChatGptHandoffState,
 } from "./providerSetup.ts";
 import * as Schema from "effect/Schema";
+import { LocalUpstreamUpdateState, LocalUpstreamUpdateError } from "./localUpstreamUpdate.ts";
 import * as Rpc from "effect/rpc/Rpc";
 import * as RpcGroup from "effect/rpc/RpcGroup";
 import * as RpcMiddleware from "effect/rpc/RpcMiddleware";
@@ -502,6 +503,9 @@ export const WS_METHODS = {
   serverUpdateServer: "server.updateServer",
   serverUpdateServerWithProgress: "server.updateServerWithProgress",
   serverCommitDesktopUpdate: "server.commitDesktopUpdate",
+  localUpstreamUpdateSubscribe: "server.localUpstreamUpdate.subscribe",
+  localUpstreamUpdateCheck: "server.localUpstreamUpdate.check",
+  localUpstreamUpdateStart: "server.localUpstreamUpdate.start",
   serverUpsertKeybinding: "server.upsertKeybinding",
   serverRemoveKeybinding: "server.removeKeybinding",
   serverRunStorageCleanup: "server.runStorageCleanup",
@@ -768,6 +772,23 @@ const WsServerUpdateServerWithProgressRpc = Rpc.make(WS_METHODS.serverUpdateServ
   success: ServerSelfUpdateProgressEvent,
   error: Schema.Union([ServerSelfUpdateError, EnvironmentAuthorizationError]),
   stream: true,
+});
+
+const WsLocalUpstreamUpdateSubscribeRpc = Rpc.make(WS_METHODS.localUpstreamUpdateSubscribe, {
+  payload: Schema.Struct({}),
+  success: LocalUpstreamUpdateState,
+  stream: true,
+  error: Schema.Union([LocalUpstreamUpdateError, EnvironmentAuthorizationError]),
+});
+const WsLocalUpstreamUpdateCheckRpc = Rpc.make(WS_METHODS.localUpstreamUpdateCheck, {
+  payload: Schema.Struct({}),
+  success: LocalUpstreamUpdateState,
+  error: Schema.Union([LocalUpstreamUpdateError, EnvironmentAuthorizationError]),
+});
+const WsLocalUpstreamUpdateStartRpc = Rpc.make(WS_METHODS.localUpstreamUpdateStart, {
+  payload: Schema.Struct({}),
+  success: LocalUpstreamUpdateState,
+  error: Schema.Union([LocalUpstreamUpdateError, EnvironmentAuthorizationError]),
 });
 
 const WsServerCommitDesktopUpdateRpc = Rpc.make(WS_METHODS.serverCommitDesktopUpdate, {
@@ -1993,6 +2014,9 @@ export const WsRpcGroup = RpcGroup.make(
   WsServerGetNpmReleaseRpc,
   WsServerUpdateServerWithProgressRpc,
   WsServerCommitDesktopUpdateRpc,
+  WsLocalUpstreamUpdateSubscribeRpc,
+  WsLocalUpstreamUpdateCheckRpc,
+  WsLocalUpstreamUpdateStartRpc,
   WsServerUpsertKeybindingRpc,
   WsServerRemoveKeybindingRpc,
   WsServerRunStorageCleanupRpc,

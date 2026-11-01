@@ -1175,6 +1175,20 @@ export function createServerEnvironmentAtoms<R, E>(
 
   return {
     configValueAtom,
+    localUpstreamUpdate: createEnvironmentRpcSubscriptionAtomFamily(runtime, {
+      label: "environment-data:server:local-upstream-update",
+      tag: WS_METHODS.localUpstreamUpdateSubscribe,
+      idleTtlMs: 0,
+    }),
+    checkLocalUpstreamUpdate: createEnvironmentRpcCommand(runtime, {
+      label: "environment-data:server:check-local-upstream-update",
+      tag: WS_METHODS.localUpstreamUpdateCheck,
+    }),
+    startLocalUpstreamUpdate: createEnvironmentRpcCommand(runtime, {
+      label: "environment-data:server:start-local-upstream-update",
+      tag: WS_METHODS.localUpstreamUpdateStart,
+      concurrency: { mode: "singleFlight", key: ({ environmentId }) => environmentId },
+    }),
     runStorageCleanup: createEnvironmentRpcCommand(runtime, {
       label: "environment-data:server:run-storage-cleanup",
       tag: WS_METHODS.serverRunStorageCleanup,

@@ -167,6 +167,9 @@ import * as CloudCliTokenManager from "./cloud/CliTokenManager.ts";
 import * as CloudCliState from "./cloud/CliState.ts";
 import * as ServerSelfUpdate from "./cloud/selfUpdate.ts";
 import * as DesktopAppUpdate from "./desktopUpdate/DesktopAppUpdate.ts";
+import * as LocalUpstreamUpdate from "./desktopUpdate/LocalUpstreamUpdate.ts";
+import * as LocalUpstreamRepository from "./desktopUpdate/LocalUpstreamRepository.ts";
+import * as LocalUpstreamUpdateHttp from "./desktopUpdate/LocalUpstreamUpdateHttp.ts";
 import * as ServiceLauncherClient from "./cloud/serviceLauncherClient.ts";
 import * as ProcessDiagnostics from "./diagnostics/ProcessDiagnostics.ts";
 import * as HostResources from "./resourceTelemetry/HostResources.ts";
@@ -738,6 +741,7 @@ const layerMakeRoutes = Layer.mergeAll(
     ServerBrowserStream.routeLayer,
     ServerHttp.layerStaticAndDevRoute,
     Ws.layer,
+    LocalUpstreamUpdateHttp.layer,
   ),
   McpHttpServer.layer.pipe(
     Layer.provide(ProviderAdapterRegistry.layerFromProviderInstanceRegistry),
@@ -773,6 +777,11 @@ const layerMakeRoutes = Layer.mergeAll(
   ),
   Layer.provide(PreviewAutomationBroker.layer),
   Layer.provide(ServerSelfUpdate.layer.pipe(Layer.provide(layerDesktopAppUpdate))),
+  Layer.provide(
+    LocalUpstreamUpdate.layer.pipe(
+      Layer.provide(LocalUpstreamRepository.layer.pipe(Layer.provide(ProcessRunner.layer))),
+    ),
+  ),
   Layer.provide(layerCommandReadiness),
   Layer.provide(ServerHttp.layerBrowserApiCors),
   Layer.provide(ServerHttp.layerHttpCompression),

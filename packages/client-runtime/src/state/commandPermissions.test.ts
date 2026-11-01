@@ -8,6 +8,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { vi } from "vite-plus/test";
 import {
   AuthAccessReadScope,
+  AuthEnvironmentMaintainScope,
   AuthAccessWriteScope,
   AuthOrchestrationOperateScope,
   AuthOrchestrationReadScope,
@@ -67,6 +68,38 @@ const setup = Effect.gen(function* () {
 });
 
 describe("command permissions", () => {
+  it.effect.each([WS_METHODS.localUpstreamUpdateCheck, WS_METHODS.localUpstreamUpdateStart])(
+    "requires local-update grants at the destination: %s",
+    (method) =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const registry = yield* setup;
+          const command = createCommandPermissions(runtime, method);
+          registry.set(sessions(env), AsyncResult.success(grant(true)));
+          expect(registry.get(command.permissionAtom(env))).toBe(false);
+          const required =
+            method === WS_METHODS.localUpstreamUpdateStart
+              ? [
+                  AuthEnvironmentMaintainScope,
+                  AuthOrchestrationOperateScope,
+                  AuthSourceControlWriteScope,
+                ]
+              : [AuthEnvironmentMaintainScope];
+          registry.set(
+            sessions(env),
+            AsyncResult.success({ ...grant(false), scopes: required, permissions: required }),
+          );
+          expect(registry.get(command.permissionAtom(env))).toBe(true);
+          yield* command.authorize(registry, env);
+          registry.set(sessions(other), AsyncResult.success(grant(false)));
+          expect(registry.get(command.permissionAtom(other))).toBe(false);
+          expect((yield* command.authorize(registry, other).pipe(Effect.flip))._tag).toBe(
+            "EnvironmentAuthorizationError",
+          );
+        }),
+      ),
+  );
+
   it.effect("requires the destination preview grant to close a browser tab", () =>
     Effect.scoped(
       Effect.gen(function* () {

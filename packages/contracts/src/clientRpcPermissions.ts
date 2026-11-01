@@ -2,6 +2,7 @@ import * as Schema from "effect/Schema";
 import { GitPreparePullRequestThreadInput, GitRunStackedActionInput } from "./git.ts";
 import {
   AuthAccessWriteScope,
+  AuthEnvironmentMaintainScope,
   AuthOrchestrationOperateScope,
   AuthOrchestrationReadScope,
   AuthPreviewOperateScope,
@@ -15,6 +16,8 @@ import { WS_METHODS } from "./rpc.ts";
 
 /** Incremental client enforcement; the server still authorizes every request. */
 export const CLIENT_GUARDED_RPC_SCOPES = {
+  [WS_METHODS.localUpstreamUpdateCheck]: AuthEnvironmentMaintainScope,
+  [WS_METHODS.localUpstreamUpdateStart]: AuthEnvironmentMaintainScope,
   [WS_METHODS.previewClose]: AuthPreviewOperateScope,
   // Stopping a server signals its processes, as closing a terminal does.
   [WS_METHODS.previewStopLocalServer]: AuthTerminalOperateScope,
@@ -78,6 +81,12 @@ export function clientRpcRequiredScopes(
   method: string,
   input: unknown,
 ): readonly AuthEnvironmentScope[] {
+  if (method === WS_METHODS.localUpstreamUpdateStart)
+    return [
+      AuthEnvironmentMaintainScope,
+      AuthOrchestrationOperateScope,
+      AuthSourceControlWriteScope,
+    ];
   if (method === WS_METHODS.gitPreparePullRequestThread && input !== undefined) {
     const payload = decodePrepareThread(input);
     if (payload.mode === "worktree" && payload.threadId !== undefined)

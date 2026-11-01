@@ -2679,32 +2679,6 @@ export function resolveDesktopRuntimeDependencies(
   );
 }
 
-export const resolveGitHubPublishConfig = Effect.fn("resolveGitHubPublishConfig")(function* (
-  updateChannel: "latest" | "nightly",
-) {
-  const env = yield* Config.all({
-    updateRepository: Config.String("T3CODE_DESKTOP_UPDATE_REPOSITORY").pipe(Config.option),
-    githubRepository: Config.String("GITHUB_REPOSITORY").pipe(Config.option),
-  });
-  const rawRepo = (
-    Option.getOrUndefined(env.updateRepository)?.trim() ||
-    Option.getOrUndefined(env.githubRepository)?.trim() ||
-    ""
-  ).trim();
-  if (!rawRepo) return undefined;
-
-  const [owner, repo, ...rest] = rawRepo.split("/");
-  if (!owner || !repo || rest.length > 0) return undefined;
-
-  return {
-    provider: "github",
-    owner,
-    repo,
-    releaseType: updateChannel === "nightly" ? "prerelease" : "release",
-    ...(updateChannel === "nightly" ? { channel: "nightly" as const } : {}),
-  };
-});
-
 export function resolveDesktopUpdateChannel(version: string): "latest" | "nightly" {
   return /-nightly\.\d{8}\.\d+$/.test(version) ? "nightly" : "latest";
 }
@@ -2786,6 +2760,14 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
       : {}),
     extraResources: [
       ...DESKTOP_EXTRA_RESOURCES,
+      ...(platform === "mac"
+        ? [
+            {
+              from: (yield* Path.Path).join(yield* RepoRoot, "scripts/c0d3-install.mjs"),
+              to: "c0d3-install.mjs",
+            },
+          ]
+        : []),
       ...(platform === "linux" ? LINUX_CAPTURE_EXTRA_RESOURCES : []),
       ...(platform === "linux" ? LINUX_BROWSER_SECRET_EXTRA_RESOURCES : []),
       ...(platform === "win" ? WINDOWS_SERVER_EXTRA_RESOURCES : []),
@@ -2793,21 +2775,11 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
     ],
   };
   const updateChannel = resolveDesktopUpdateChannel(version);
-  // Missing publish config infers a GitHub feed from tokens; staging has no repository, so manifest generation would crash.
-  buildConfig.publish = null;
-  if (!isDesktopPreviewVersion(version)) {
-    const publishConfig = yield* resolveGitHubPublishConfig(updateChannel);
-    if (publishConfig) {
-      buildConfig.publish = [publishConfig];
-    } else if (mockUpdates) {
-      buildConfig.publish = [
-        {
-          provider: "generic",
-          url: resolveMockUpdateServerUrl(mockUpdateServerPort),
-        },
-      ];
-    }
-  }
+  // c0d3 installs local builds; a hosted feed could replace the fork with upstream.
+  buildConfig.publish =
+    mockUpdates && !isDesktopPreviewVersion(version)
+      ? [{ provider: "generic", url: resolveMockUpdateServerUrl(mockUpdateServerPort) }]
+      : null;
 
   if (platform === "mac") {
     const path = yield* Path.Path;
@@ -4054,7 +4026,7 @@ const buildDesktopArtifactUnlocked = Effect.fn("buildDesktopArtifactUnlocked")(f
   const copiedArtifacts = yield* copyDesktopBuildArtifacts(
     stageDistDir,
     options.outputDir,
-    options.target === "dir",
+    options.target === "dir" || options.platform === "mac",
   );
 
   if (copiedArtifacts.length === 0) {

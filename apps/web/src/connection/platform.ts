@@ -248,7 +248,7 @@ export const provisionDesktopSshEnvironment = Effect.fn(
       }
       return new ConnectionBlockedError({
         reason: "configuration",
-        detail: `${descriptor.label} runs T3 Code ${descriptor.serverVersion}, but this desktop is ${APP_VERSION}, and that server could not accept its pairing. Restart the T3 server on ${descriptor.label} so it runs ${APP_VERSION}, then retry.`,
+        detail: `${descriptor.label} runs c0d3 ${descriptor.serverVersion}, but this desktop is ${APP_VERSION}, and that server could not accept its pairing. Restart the c0d3 server on ${descriptor.label} so it runs ${APP_VERSION}, then retry.`,
       });
     },
   });
@@ -336,7 +336,7 @@ const layerCapabilities = Layer.effectContext(
         if (session === null) {
           return yield* new ConnectionBlockedError({
             reason: "authentication",
-            detail: "Sign in to T3 Connect to connect this environment.",
+            detail: "Sign in to c0d3 Connect to connect this environment.",
           });
         }
         const token = yield* session.readClerkToken().pipe(
@@ -351,7 +351,7 @@ const layerCapabilities = Layer.effectContext(
         if (token === null) {
           return yield* new ConnectionBlockedError({
             reason: "authentication",
-            detail: "The T3 Connect session is unavailable.",
+            detail: "The c0d3 Connect session is unavailable.",
           });
         }
         return token;

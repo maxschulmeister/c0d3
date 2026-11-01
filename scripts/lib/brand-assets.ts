@@ -33,6 +33,23 @@ export const BRAND_ASSET_PATHS = {
 
 export type WebAssetBrand = "development" | "nightly" | "production";
 
+const webDesktopIconAssets = (brand: WebAssetBrand) => ({
+  sourceSvg: `assets/c0d3/${brand}.svg`,
+  iconPng: `assets/c0d3/${brand}/icon.png`,
+  macIconPng: `assets/c0d3/${brand}/icon-macos.png`,
+  windowsIconIco: `assets/c0d3/${brand}/icon.ico`,
+  appleTouchIconPng: `assets/c0d3/${brand}/apple-touch-icon.png`,
+  favicon16Png: `assets/c0d3/${brand}/favicon-16x16.png`,
+  favicon32Png: `assets/c0d3/${brand}/favicon-32x32.png`,
+  faviconIco: `assets/c0d3/${brand}/favicon.ico`,
+});
+
+export const WEB_DESKTOP_ICON_ASSETS = {
+  development: webDesktopIconAssets("development"),
+  nightly: webDesktopIconAssets("nightly"),
+  production: webDesktopIconAssets("production"),
+};
+
 export const WEB_ASSET_CHANNELS = ["latest", "nightly"] as const;
 
 export type WebAssetChannel = (typeof WEB_ASSET_CHANNELS)[number];
@@ -55,22 +72,22 @@ const WEB_ICON_TARGET_FILENAMES = {
 
 const WEB_ICON_SOURCE_PATHS_BY_BRAND = {
   development: {
-    faviconIco: BRAND_ASSET_PATHS.developmentWebFaviconIco,
-    favicon16Png: BRAND_ASSET_PATHS.developmentWebFavicon16Png,
-    favicon32Png: BRAND_ASSET_PATHS.developmentWebFavicon32Png,
-    appleTouchIconPng: BRAND_ASSET_PATHS.developmentWebAppleTouchIconPng,
+    faviconIco: WEB_DESKTOP_ICON_ASSETS.development.faviconIco,
+    favicon16Png: WEB_DESKTOP_ICON_ASSETS.development.favicon16Png,
+    favicon32Png: WEB_DESKTOP_ICON_ASSETS.development.favicon32Png,
+    appleTouchIconPng: WEB_DESKTOP_ICON_ASSETS.development.appleTouchIconPng,
   },
   nightly: {
-    faviconIco: BRAND_ASSET_PATHS.nightlyWebFaviconIco,
-    favicon16Png: BRAND_ASSET_PATHS.nightlyWebFavicon16Png,
-    favicon32Png: BRAND_ASSET_PATHS.nightlyWebFavicon32Png,
-    appleTouchIconPng: BRAND_ASSET_PATHS.nightlyWebAppleTouchIconPng,
+    faviconIco: WEB_DESKTOP_ICON_ASSETS.nightly.faviconIco,
+    favicon16Png: WEB_DESKTOP_ICON_ASSETS.nightly.favicon16Png,
+    favicon32Png: WEB_DESKTOP_ICON_ASSETS.nightly.favicon32Png,
+    appleTouchIconPng: WEB_DESKTOP_ICON_ASSETS.nightly.appleTouchIconPng,
   },
   production: {
-    faviconIco: BRAND_ASSET_PATHS.productionWebFaviconIco,
-    favicon16Png: BRAND_ASSET_PATHS.productionWebFavicon16Png,
-    favicon32Png: BRAND_ASSET_PATHS.productionWebFavicon32Png,
-    appleTouchIconPng: BRAND_ASSET_PATHS.productionWebAppleTouchIconPng,
+    faviconIco: WEB_DESKTOP_ICON_ASSETS.production.faviconIco,
+    favicon16Png: WEB_DESKTOP_ICON_ASSETS.production.favicon16Png,
+    favicon32Png: WEB_DESKTOP_ICON_ASSETS.production.favicon32Png,
+    appleTouchIconPng: WEB_DESKTOP_ICON_ASSETS.production.appleTouchIconPng,
   },
 } as const satisfies Record<WebAssetBrand, Record<keyof typeof WEB_ICON_TARGET_FILENAMES, string>>;
 

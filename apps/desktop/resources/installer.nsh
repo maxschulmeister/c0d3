@@ -12,7 +12,7 @@
   Push $1
   ${If} $IsPowerShellAvailable == 0
     System::Call 'kernel32::SetEnvironmentVariable(t "T3CODE_INSTALL_DIR", t "$INSTDIR")'
-    nsExec::ExecToStack `"$PowerShellPath" -NoProfile -NonInteractive -C "Get-CimInstance -ClassName Win32_Process | Where-Object { $$_.ExecutablePath -and [IO.Path]::GetDirectoryName($$_.ExecutablePath) -eq $$env:T3CODE_INSTALL_DIR } | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($$_.ExecutablePath) } | Where-Object { $$_ -in 'T3 Code (Alpha)', 'T3 Code (Beta)', 'T3 Code (Nightly)' } | Select-Object -First 1 | ForEach-Object { [Console]::Write($$_) }"`
+    nsExec::ExecToStack `"$PowerShellPath" -NoProfile -NonInteractive -C "Get-CimInstance -ClassName Win32_Process | Where-Object { $$_.ExecutablePath -and [IO.Path]::GetDirectoryName($$_.ExecutablePath) -eq $$env:T3CODE_INSTALL_DIR } | ForEach-Object { [IO.Path]::GetFileNameWithoutExtension($$_.ExecutablePath) } | Where-Object { $$_ -in 'T3 Code (Alpha)', 'T3 Code (Beta)', 'T3 Code (Nightly)', 'c0d3 (Alpha)', 'c0d3 (Beta)', 'c0d3 (Nightly)' } | Select-Object -First 1 | ForEach-Object { [Console]::Write($$_) }"`
     Pop $0
     Pop $1
     System::Call 'kernel32::SetEnvironmentVariable(t "T3CODE_INSTALL_DIR", p 0)'
@@ -20,6 +20,9 @@
       ${If} $1 == "T3 Code (Alpha)"
       ${OrIf} $1 == "T3 Code (Beta)"
       ${OrIf} $1 == "T3 Code (Nightly)"
+      ${OrIf} $1 == "c0d3 (Alpha)"
+      ${OrIf} $1 == "c0d3 (Beta)"
+      ${OrIf} $1 == "c0d3 (Nightly)"
         ${T3StrRep} $appRunningMessage $appRunningMessage "${PRODUCT_NAME}" $1
         ${T3StrRep} $appClosingMessage $appClosingMessage "${PRODUCT_NAME}" $1
         ${T3StrRep} $appCannotBeClosedMessage $appCannotBeClosedMessage "${PRODUCT_NAME}" $1

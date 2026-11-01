@@ -16,6 +16,7 @@ import { Navigate, useLocation, useNavigate } from "@tanstack/react-router";
 import { InfoIcon, Trash2Icon } from "lucide-react";
 import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
 
+import { APP_BASE_NAME } from "../../branding";
 import { useComposerDraftStore } from "../../composerDraftStore";
 import { releaseProjectDraftUploads } from "../../lib/composerDraftUploads";
 import { readLocalApi } from "../../localApi";
@@ -281,7 +282,9 @@ function ProjectDetail({
       unloadedThreadCount: readUnloadedThreadCount(members, threads),
     });
     const confirmed = await settlePromise(() =>
-      api.dialogs.confirm(confirmationMessage, { variant: "destructive" }),
+      api.dialogs.confirm(confirmationMessage.replaceAll("T3 Code", APP_BASE_NAME), {
+        variant: "destructive",
+      }),
     );
     if (confirmed._tag === "Failure" || !confirmed.value) return;
     if (checkProjectAccess(members, "Failed to remove project")) return;

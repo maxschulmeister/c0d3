@@ -45,7 +45,7 @@ const fakeAppImage = (canMount = true) => {
   const root = tempRoot();
   const image = NodePath.join(root, "image");
   writeExecutable(NodePath.join(image, "t3code"), REPORTER);
-  const appImage = NodePath.join(root, "T3 Code.AppImage");
+  const appImage = NodePath.join(root, "c0d3.AppImage");
   writeExecutable(
     appImage,
     [
@@ -73,7 +73,7 @@ describe("renderCliShim", () => {
     );
   });
 
-  it("keeps the install's T3 home under sudo, unless one is set", () => {
+  it("keeps the install's c0d3 home under sudo, unless one is set", () => {
     const root = tempRoot();
     writeExecutable(NodePath.join(root, "app"), REPORTER);
     const shim = writeShim(root, {
@@ -89,15 +89,15 @@ describe("renderCliShim", () => {
 
   it("runs an installed app's server directly", () => {
     const root = tempRoot();
-    const executable = NodePath.join(root, "opt", "T3 Code", "t3code");
+    const executable = NodePath.join(root, "opt", "c0d3", "t3code");
     writeExecutable(executable, REPORTER);
     const shim = writeShim(root, {
       kind: "direct",
       executable,
-      entry: "/opt/T3's/app.asar/bin.mjs",
+      entry: "/opt/c0d3's/app.asar/bin.mjs",
     });
     expect(run(shim, ["browser", "setup"]).stdout.split("\n").slice(1)).toEqual([
-      "/opt/T3's/app.asar/bin.mjs",
+      "/opt/c0d3's/app.asar/bin.mjs",
       "browser",
       "setup",
       "",
@@ -105,7 +105,7 @@ describe("renderCliShim", () => {
   });
 
   it("writes a Windows launcher that keeps cmd from reinterpreting paths", () => {
-    const executable = "C:\\Apps\\R&whoami&X 100%\\!CHANNEL!\\T3 Code.exe";
+    const executable = "C:\\Apps\\R&whoami&X 100%\\!CHANNEL!\\c0d3.exe";
     const script = renderCliShim({
       target: { kind: "windows", executable, entry: "C:\\Apps\\server.asar\\bin.mjs" },
       shimPath: "C:\\Users\\José\\.t3\\bin\\t3.cmd",
@@ -114,9 +114,7 @@ describe("renderCliShim", () => {
     const lines = script.split("\r\n");
     expect(lines).toContain("setlocal EnableExtensions DisableDelayedExpansion");
     expect(lines).toContain("chcp 65001 >nul");
-    expect(lines).toContain(
-      'if exist "C:\\Apps\\R&whoami&X 100%%\\!CHANNEL!\\T3 Code.exe" goto run',
-    );
+    expect(lines).toContain('if exist "C:\\Apps\\R&whoami&X 100%%\\!CHANNEL!\\c0d3.exe" goto run');
     const bare = lines.filter(
       (line) => line.includes("whoami") && !/"[^"]*whoami[^"]*"/.test(line),
     );

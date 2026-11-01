@@ -33,7 +33,7 @@ export function EnvironmentContextChip(props: {
         }
       />
       <TooltipPopup side="top">
-        {environment ? "T3 Code environment" : "Machine not in this app"}
+        {environment ? "c0d3 environment" : "Machine not in this app"}
       </TooltipPopup>
     </Tooltip>
   );

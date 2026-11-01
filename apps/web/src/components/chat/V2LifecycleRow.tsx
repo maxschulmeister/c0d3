@@ -59,7 +59,7 @@ import { cn } from "~/lib/utils";
 import { TimelineSystemDivider } from "./TimelineSystemDivider";
 import { subagentResumedSince } from "./V2LifecycleRow.logic";
 import { Button, InlineButton } from "../ui/button";
-import { T3Wordmark } from "../T3Wordmark";
+import { BrandMark } from "../BrandWordmark";
 
 export type { HandoffTimelineRun } from "@t3tools/client-runtime/handoff";
 
@@ -123,7 +123,7 @@ export function V2LifecycleRow(props: {
     return (
       <WorkLogRow
         data-v2-item-type={item.type}
-        icon={<T3Wordmark className="size-4 text-icon-muted" aria-hidden />}
+        icon={<BrandMark className="size-4 text-icon-muted" aria-hidden />}
         label={<>Created thread{item.title ? ` · ${item.title}` : ""}</>}
         trailing={
           <InlineButton

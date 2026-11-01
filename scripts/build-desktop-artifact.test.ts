@@ -1383,6 +1383,32 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
     ),
   );
 
+  it.effect.each([false, true])(
+    "uses ad-hoc signing only for local macOS builds: signed=%s",
+    (signed) =>
+      Effect.gen(function* () {
+        const config = yield* createBuildConfig(
+          "mac",
+          "dmg",
+          "0.1.6",
+          signed,
+          false,
+          undefined,
+          undefined,
+        );
+        const mac = config.mac as Record<string, unknown>;
+        if (signed) {
+          assert.notProperty(mac, "identity");
+          assert.notProperty(mac, "hardenedRuntime");
+          assert.match(mac.sign as string, /scripts[\\/]sign-macos\.ts$/);
+        } else {
+          assert.equal(mac.identity, "-");
+          assert.isFalse(mac.hardenedRuntime);
+          assert.notProperty(mac, "sign");
+        }
+      }),
+  );
+
   it("derives macOS passkey signing configuration from the Clerk publishable key", () => {
     const configuration = resolveMacPasskeySigningConfiguration({
       T3CODE_APPLE_TEAM_ID: "abc1234567",
